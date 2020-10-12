@@ -64,13 +64,13 @@
         <div class="row">
             <label class="col-sm-2">Private Key</label>
             <div class="col-sm-10">
-                <textarea id="Private Ke" rows="5" class="form-control" readonly></textarea>
+                <textarea id="private_Key" rows="5" class="form-control" readonly></textarea>
             </div>
         </div>
 
         <br>
 
-        <div class="row" id="warning" style="display:none">
+        <div id="warning" class="row" style="display:none">
             <div class="col-sm-12">
                 <div class="alert alert-danger" role="alert">
                     IMPORTANT
@@ -94,7 +94,20 @@
 
     <script>
         $(function(){
-
+            $('input').click(function(){
+                $.ajax({
+                    url:'/wallet/new',
+                    type: 'GET',
+                    success: function(response){
+                        document.getElementById("public_key").innerHTML=response['public_key'];
+                        document.getElementById("private_Key").innerHTML=response['private_Key'];
+                        document.getElementById("warning").style.display="block";
+                    },
+                    error: function(error){
+                        console.log(error);
+                    },
+                });
+            });
         });
     </script>
 

@@ -22,10 +22,10 @@ def make_transaction():
     return render_template('make_transaction.html')
 
 
-
 @app.route('/view/transaction')
 def view_transaction():
     return render_template('view_transaction.html')
+
 
 @app.route('/wallet/new')
 def new_wallet():
