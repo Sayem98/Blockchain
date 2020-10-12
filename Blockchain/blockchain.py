@@ -9,7 +9,7 @@ class Blockchain:
         self.create_block(0, '00')
 
     def create_block(self, nonce, previous_hash):
-        block = {'block_number': len(self.chin) + 1,
+        block = {'block_number': len(self.chain) + 1,
                  'timestamp': time(),
                  'transactions': self.transaction,
                  'nonce': nonce,
