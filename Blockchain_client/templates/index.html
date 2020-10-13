@@ -100,7 +100,7 @@
                     type: 'GET',
                     success: function(response){
                         document.getElementById("public_key").innerHTML=response['public_key'];
-                        document.getElementById("private_Key").innerHTML=response['private_Key'];
+                        document.getElementById("private_Key").innerHTML=response['private_key'];
                         document.getElementById("warning").style.display="block";
                     },
                     error: function(error){
