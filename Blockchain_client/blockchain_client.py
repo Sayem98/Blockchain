@@ -21,12 +21,17 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/make/transaction')
+@app.route('/generate/transactions', methods=['POST'])
+def generate_transaction():
+    return 'Done!'
+
+
+@app.route('/make/transactions')
 def make_transaction():
     return render_template('make_transaction.html')
 
 
-@app.route('/view/transaction')
+@app.route('/view/transactions')
 def view_transaction():
     return render_template('view_transaction.html')
 

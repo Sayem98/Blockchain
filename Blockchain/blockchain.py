@@ -16,7 +16,7 @@ class Blockchain:
                  'previous_hash': previous_hash
 
                  }
-        #reset list of transaction
+        # reset list of transaction
         self.transaction = []
         self.chain.append(block)
 
