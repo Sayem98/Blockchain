@@ -72,10 +72,10 @@
 
             <br>
             <div class="row">
-                <lebel class="col-sm-2">Recipient Private Key:</lebel>
+                <lebel class="col-sm-2">Recipient Public Key:</lebel>
 
                 <div class="col-sm-10">
-                    <input type="text" name="recipient_private_key" id="recipient_private_key" class="form-control">
+                    <input type="text" name="recipient_public_key" id="recipient_public_key" class="form-control">
                 </div>
             </div>
 
@@ -108,10 +108,10 @@
 
     <script>
         $(function(){
-            $("generate_transaction").click(function(){
+            $('#generate_transaction').click(function(){
                 $.ajax({
-                    url:"/generate/transactions",
-                    type:"POST",
+                    url:'/generate/transactions',
+                    type:'POST',
                     dataType:'json',
                     data: $('#transaction_form').serialize(),
                     success: function(response) {
