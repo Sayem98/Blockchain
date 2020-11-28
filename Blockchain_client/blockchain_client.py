@@ -18,7 +18,6 @@ class Transaction:
     def to_dict(self):
         return OrderedDict({
             'sender_public_key': self.sender_public_key,
-            'sender_private_key': self.sender_private_key,
             'recipient_public_key': self.recipient_public_key,
             'amount': self.amount,
 
@@ -27,8 +26,8 @@ class Transaction:
     def sign_transaction(self):
         private_key = RSA.importKey(binascii.unhexlify(self.sender_private_key))
         signer = PKCS1_v1_5.new(private_key)
-        hash = SHA.new(str(self.to_dict()).encode('utf8'))
-        return binascii.hexlify(signer.sign(hash)).decode('ascii')
+        h = SHA.new(str(self.to_dict()).encode('utf8'))
+        return binascii.hexlify(signer.sign(h)).decode('ascii')
 
 
 app = Flask(__name__)
