@@ -6,8 +6,12 @@ import binascii
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import SHA
+import os
+from flask import send_from_directory
 
 MINING_SENDER = "The Blockchain"
+
+
 class Blockchain:
     def __init__(self):
         self.transactions = []
@@ -70,11 +74,27 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
+
+
+@app.route('/transactions/get', methods=['GET'])
+def get_transaction():
+    transactions = blockchain.transactions
+
+    response = {'transactions': transactions}
+
+    return jsonify(response), 200
+
+
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     values = request.form
     # check the required field
-    required = ['confirmation_sender_public_key', 'confirmation_recipient_public_key', 'transaction_signature', 'confirmation_amount']
+    required = ['confirmation_sender_public_key', 'confirmation_recipient_public_key', 'transaction_signature',
+                'confirmation_amount']
     if not all(k in values for k in required):
         return 'Missing values', 400
     transaction_results = blockchain.submit_transaction(values['confirmation_sender_public_key'],
