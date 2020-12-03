@@ -11,8 +11,10 @@ from flask import send_from_directory
 from uuid import uuid4
 import json
 import hashlib
+
 MINING_SENDER = "The Blockchain"
 MINING_REWARD = 1
+MINING_DIFFICULTY = 2
 
 
 class Blockchain:
@@ -46,8 +48,21 @@ class Blockchain:
         except ValueError:
             return False
 
+    def valid_proof(self, transactions, last_hash, nonce, difficulty=MINING_DIFFICULTY):
+        guess = (str(transactions) + str(last_hash) + str(nonce)).encode('utf8')
+        h = hashlib.new('sha256')
+        h.update(guess)
+        guess_hash = h.hexdigest()
+        return guess_hash[:difficulty] == '0'*difficulty
+
     def proof_of_work(self):
-        return 12345
+        last_block = self.chain[-1]
+        last_hash = self.hash(last_block)
+        nonce = 0
+        while self.valid_proof(self.transactions, last_hash, nonce) is False:
+            nonce += 1
+
+        return nonce
 
     def hash(self, block):
         block_string = json.dumps(block, sort_keys=True).encode('utf8')
