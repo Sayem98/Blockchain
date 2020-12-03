@@ -8,14 +8,18 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import SHA
 import os
 from flask import send_from_directory
-
+from uuid import uuid4
+import json
+import hashlib
 MINING_SENDER = "The Blockchain"
+MINING_REWARD = 1
 
 
 class Blockchain:
     def __init__(self):
         self.transactions = []
         self.chain = []
+        self.node_id = str(uuid4()).replace('_', '')
         self.create_block(0, '00')
 
     def create_block(self, nonce, previous_hash):
@@ -29,6 +33,7 @@ class Blockchain:
         # reset list of transaction
         self.transactions = []
         self.chain.append(block)
+        return block
 
     def verify_transaction_signature(self, sender_public_key, signature, transaction):
         public_key = RSA.importKey(binascii.unhexlify(sender_public_key))
@@ -40,6 +45,15 @@ class Blockchain:
 
         except ValueError:
             return False
+
+    def proof_of_work(self):
+        return 12345
+
+    def hash(self, block):
+        block_string = json.dumps(block, sort_keys=True).encode('utf8')
+        h = hashlib.new('sha256')
+        h.update(block_string)
+        return h.hexdigest()
 
     def submit_transaction(self, sender_public_key, recipient_public_key, signature, amount):
         # TODO: Reward the miner
@@ -86,6 +100,34 @@ def get_transaction():
 
     response = {'transactions': transactions}
 
+    return jsonify(response), 200
+
+
+@app.route('/chain', methods=['GET'])
+def get_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
+    }
+    return jsonify(response), 200
+
+
+@app.route('/mine', methods=['GET'])
+def mine():
+    nonce = blockchain.proof_of_work()
+    blockchain.submit_transaction(sender_public_key=MINING_SENDER, recipient_public_key=blockchain.node_id, signature=''
+                                  , amount=MINING_REWARD)
+    last_block = blockchain.chain[-1]
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.create_block(nonce, previous_hash)
+    response = {
+        'message': 'New block created',
+        'Block_number': block['block_number'],
+        'transactions': block['transactions'],
+        'nonce': block['nonce'],
+        'previous_hash': block['previous_hash']
+
+    }
     return jsonify(response), 200
 
 
