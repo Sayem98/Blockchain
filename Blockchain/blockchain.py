@@ -12,6 +12,7 @@ from uuid import uuid4
 import json
 import hashlib
 import requests
+from urllib.parse import urlparse
 
 MINING_SENDER = "The Blockchain"
 MINING_REWARD = 1
@@ -26,6 +27,9 @@ class Blockchain:
         self.nodes = set()
         self.node_id = str(uuid4()).replace('_', '')
         self.create_block(0, '00')
+
+    def register_node(self, node_url):
+        self.nodes.add(node_url)
 
     def create_block(self, nonce, previous_hash):
         block = {'block_number': len(self.chain) + 1,
@@ -140,6 +144,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/configure')
+def configure():
+    return render_template('configure.html')
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',
@@ -202,6 +211,49 @@ def new_transaction():
         response = {'message': 'transaction will be added to the Block ' + str(transaction_results)}
 
     return jsonify(response), 201
+
+
+@app.route('/nodes/get', methods=['GET'])
+def get_nodes():
+
+    nodes = list(blockchain.nodes)
+    response = {'nodes': nodes}
+    return jsonify(response), 200
+
+
+@app.route('/nodes/register', methods=['POST'])
+def register_node():
+    values = request.form
+    # 127.0.0.1:5002,127.0.0.1:5003, 127.0.0.1:5004
+    nodes = values.get('nodes').replace(' ', '').split(',')
+    # print(nodes) ok
+    if nodes is None:
+        return 'Error: Please supply a valid list of nodes', 400
+
+    for node in nodes:
+        blockchain.register_node(node)
+
+    response = {
+        'message': 'Nodes have been added',
+        'total_nodes': [node for node in blockchain.nodes]
+    }
+    return jsonify(response), 200
+
+@app.route('/nodes/resolve', methods=['GET'])
+def consensus():
+    replaced = blockchain.resolve_conflicts()
+
+    if replaced:
+        response = {
+            'message': 'Our chain was replaced',
+            'new_chain': blockchain.chain
+        }
+    else:
+        response = {
+            'message': 'Our chain is authoritative',
+            'chain': blockchain.chain
+        }
+    return jsonify(response), 200
 
 
 if __name__ == '__main__':
